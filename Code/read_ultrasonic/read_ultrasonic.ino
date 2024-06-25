@@ -4,7 +4,7 @@ const int echoPin = 10; // Echo pin of the ultrasonic sensor
 
 // Variables for the duration of the pulse and the distance
 long duration;
-int distance_cm;
+long distance_cm;
 
 
 void setup() {
@@ -33,12 +33,13 @@ void loop() {
   duration = pulseIn(echoPin, HIGH);
 
   // Calculate the distance in centimeters
-  distance_cm = duration * 0.034 / 2;
+  distance_cm = duration * 0.34 / 2.0;
 
   // Print the distance to the serial monitor
   Serial.print("Distance: ");
   Serial.print(distance_cm);
-  Serial.println(" cm");
+  Serial.println(" mm");
+  //Serial.print(duration);
 
   // Wait before taking the next measurement
   delay(500); // Adjust delay as needed for your application
