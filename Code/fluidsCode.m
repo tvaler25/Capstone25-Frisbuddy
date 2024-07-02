@@ -1,6 +1,6 @@
 clear;
 clc;
-dt = 0.001; %time step
+dt = 0.01; %time step
 t = 0:dt:10; %vector of all times
 vi = [12 15 18];
 angle = 10;
@@ -46,9 +46,12 @@ end
 hold off
 legend(legendInfo);
 title('Trajectory for Changing Initial Velocity');
+subtitle('0.5m Initial Height, 10° Launch Angle');
 xlabel('Horizontal Distance (m)');
 ylabel('Vertical Distance (m)');
 axis equal;
+xlim([0 30]);
+ylim([0 10]);
 
 
 disp(airtime);
