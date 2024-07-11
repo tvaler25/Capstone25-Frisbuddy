@@ -2,7 +2,7 @@ clear;
 clc;
 dt = 0.01; %time step
 t = 0:dt:10; %vector of all times
-vi = [12 14 16];
+vi = [10 12 14];
 angle = 10;
 anglerad = angle*pi()/180;
 
@@ -11,10 +11,13 @@ ac = [0 -9.81]; %constant acceleration
 ad = [0 0]; %drag acceleration
 al = [0 0]; % lift acceleration
 m = 0.175; %mass
-cd = 0.1; %drag coefficient
-cl = 0.175;
+cd0 = 0.08; %drag coefficient
+cl0 = 0.15;
+cdalpha = 2.72;
+clalpha = 1.4;
 rho = 1.2; %density of air
-r = 0.275/2;
+r = 0.274/2;
+area = pi()*r^2;
 
 for j=1:1:length(vi)
     v = [vi(j)*cos(anglerad) vi(j)*sin(anglerad)]; %initial velocity (m/s)
@@ -24,11 +27,15 @@ for j=1:1:length(vi)
 
         theta = atan2((p(i, 2)-p(i-1, 2)), (p(i, 1)-p(i-1, 1))); %angle of current motion
         vtot = sqrt(v(i, 1)^2 + v(i, 2)^2); %total velocity
-
-        fd = 0.5*rho*(vtot^2)*cd*pi()*(r^2); %drag force
+        
+        alpha = anglerad - theta;
+        cd = cd0 + cdalpha*(alpha-(-4*pi()/180))^2;
+        cl = cl0 + clalpha*alpha;
+        
+        fd = 0.5*rho*(vtot^2)*cd*area; %drag force
         ad = (-fd/m)*[cos(theta) sin(theta)]; %drag force applies opposite to motion      
         
-        fl = 0.5*rho*(vtot^2)*cl*pi()*(r^2); %lift force
+        fl = 0.5*rho*(vtot^2)*cl*area; %lift force
         al = (fl/m)*[-sin(theta) cos(theta)]; % drag force applies perp. to motion
 
         if(p(i, 2) < 0) %stop once the ball hits the "ground"
