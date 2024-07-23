@@ -36,9 +36,9 @@ void loop() {
   distance_cm = duration * 0.34 / 2.0;
 
   // Print the distance to the serial monitor
-  Serial.print("Distance: ");
-  Serial.print(distance_cm);
-  Serial.println(" mm");
+  //Serial.print("Distance: ");
+  Serial.println(distance_cm);
+  //Serial.println(" mm");
   //Serial.print(duration);
 
   // Wait before taking the next measurement
