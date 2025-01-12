@@ -22,23 +22,23 @@ area = pi()*r^2;
 for j=1:1:length(vi)
     v = [vi(j)*cos(anglerad) vi(j)*sin(anglerad)]; %initial velocity (m/s)
     for i=2:1:length(t)
-        v(i, :) = v(i-1, :)+(ac+ad+al)*dt; %new vel = old vel + deltaT*accel
-        p(i, :) = p(i-1, :)+v(i-1, :)*dt; %new pos = old pos + deltaT*vel
+                                                                                v(i, :) = v(i-1, :)+(ac+ad+al)*dt; %new vel = old vel + deltaT*accel
+                                                                                p(i, :) = p(i-1, :)+v(i-1, :)*dt; %new pos = old pos + deltaT*vel
 
-        theta = atan2((p(i, 2)-p(i-1, 2)), (p(i, 1)-p(i-1, 1))); %angle of current motion
-        vtot = sqrt(v(i, 1)^2 + v(i, 2)^2); %total velocity
-        
-        alpha = anglerad - theta;
-        cd = cd0 + cdalpha*(alpha-(-4*pi()/180))^2;
-        cl = cl0 + clalpha*alpha;
-        
-        fd = 0.5*rho*(vtot^2)*cd*area; %drag force
-        ad = (-fd/m)*[cos(theta) sin(theta)]; %drag force applies opposite to motion      
-        
-        fl = 0.5*rho*(vtot^2)*cl*area; %lift force
-        al = (fl/m)*[-sin(theta) cos(theta)]; % drag force applies perp. to motion
+                                                                                theta = atan2((p(i, 2)-p(i-1, 2)), (p(i, 1)-p(i-1, 1))); %instantaneous angle of motion
+                                                                                vtot = sqrt(v(i, 1)^2 + v(i, 2)^2); %instantaneous velocity
 
-        if(p(i, 2) < 0) %stop once the ball hits the "ground"
+                                                                                alpha = anglerad - theta; %instantaneous angle of attack (AOA)
+                                                                                cd = cd0 + cdalpha*(alpha-(-4*pi()/180))^2; %drag coefficient (including AOA)
+                                                                                cl = cl0 + clalpha*alpha; %lift coefficient (including AOA)
+
+                                                                                fd = 0.5*rho*(vtot^2)*cd*area; %drag force
+                                                                                ad = (-fd/m)*[cos(theta) sin(theta)]; %acceleration due to drag (applies opposite to motion)      
+
+                                                                                fl = 0.5*rho*(vtot^2)*cl*area; %lift force
+                                                                                al = (fl/m)*[-sin(theta) cos(theta)]; % acceleration due to lift (applied perp. to motion)
+
+                                                                                if(p(i, 2) < 0) %stop once the ball hits the "ground"
             airtime(j) = i*dt;
             peak(j) = max(p(:, 2));
             dist(j) = p(i, 1);
