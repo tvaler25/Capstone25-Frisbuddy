@@ -5,14 +5,20 @@ const int echoPin = 10; // Echo pin of the ultrasonic sensor
 //Define servo motor connections:
 #include<Servo.h> //include server library
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 Servo ser; //create servo object to control a servo
 int openVal = 110; //Open gripper value
 int closeVal = 10; //Close gripper value
 =======
+=======
+>>>>>>> Stashed changes
 Servo ser1; //create servo object to control a servo
 Servo ser2;
 int openVal = 120; //Open gripper value
 int closeVal = 75; //Close gripper value
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 // Variables for the duration of the pulse and the distance
@@ -31,9 +37,12 @@ void setup() {
 
   //Sets the servo pin and opens gripper:
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   ser.attach(5);// server is connected at pin 5
   ser.write(closeVal);// the servo will move according to position 
 =======
+=======
+>>>>>>> Stashed changes
   ser1.attach(5);// server is connected at pin 5
   
 
@@ -41,6 +50,9 @@ void setup() {
 
   ser2.attach(11);
   ser2.write(closeVal);
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
   delay(2000);//delay for the servo to get to the position
 
@@ -67,10 +79,13 @@ void loop() {
   if(distance_mm<=35)
   {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     ser.write(openVal);// the servo will move according to position 
     delay(3000);//delay for the servo to get to the position
     ser.write(closeVal);// the servo will move according to position
 =======
+=======
+>>>>>>> Stashed changes
     ser1.write(openVal);// the servo will move according to position 
     delay(1000);//delay for the servo to get to the position
     ser2.write(openVal);
@@ -78,6 +93,9 @@ void loop() {
     ser1.write(closeVal);// the servo will move according to position
     delay(1000);
     ser2.write(closeVal);
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
   }
 
