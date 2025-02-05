@@ -38,7 +38,7 @@ void setup() {
   pinMode(echoPinRight, INPUT);
   pinMode(echoPinLeft, INPUT);
 
-  ser1.attach(servo_right_pin);// servo is connected at pin 5
+  ser1.attach(servo_left_pin);// servo is connected at pin 5
 
   ser1.write(downValLeft);// the servo will move according to position 
   
