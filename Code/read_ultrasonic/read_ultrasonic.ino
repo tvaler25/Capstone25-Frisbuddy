@@ -8,16 +8,20 @@ const int trigPinLeft  = 7;
 const int echoPinLeft  = 8;
 
 // Create Servo Objects
-Servo ser1; 
-Servo ser2;
+Servo left_servo; 
+Servo right_servo;
 
-const int servo_left_pin = 5;
-const int servo_right_pin = 11; 
+const int servo_left_pin = 11;
+const int servo_right_pin = 5; 
 
-int upValRight = 120; //Right Paddle Up position
-int downValRight = 75; //right paddle down position
-int upValLeft = 40;  //left paddle up position
-int downValLeft = 170; //left paddle down position
+int test_val;
+
+int ClearValRight = 0; //Right Paddle Up position
+int downValRight = 80; //right paddle down position
+int PushValLeft = 30;  //left paddle up position
+int downValLeft = 100; //left paddle down position
+int ClearValLeft = 180;
+int PushValRight = 160;
 
 
 // Variables for the duration of the pulse and the distance
@@ -38,54 +42,74 @@ void setup() {
   pinMode(echoPinRight, INPUT);
   pinMode(echoPinLeft, INPUT);
 
-  ser1.attach(servo_left_pin);// servo is connected at pin 5
+  left_servo.attach(servo_left_pin);// servo is connected at pin 5
 
-  ser1.write(downValLeft);// the servo will move according to position 
+  left_servo.write(downValLeft);// the servo will move according to position 
   
-  ser2.attach(servo_right_pin);
-  ser2.write(downValRight);
+  right_servo.attach(servo_right_pin);
+  right_servo.write(downValRight);
 
   delay(2000); //delay for the servo to get to the position
 
 }
 
 void loop() {
+
+  
+  if (Serial.available()){
+  test_val = Serial.read();
+  }
   // put your main code here, to run repeatedly:
 // Clear the trigPin by setting it LOW for 2 microseconds
-  digitalWrite(trigPinRight, LOW);
-  delayMicroseconds(2);
+digitalWrite(trigPinRight, LOW);
+delayMicroseconds(2);
 
-  // Set the trigPin HIGH for 10 microseconds to trigger the sensor
-  digitalWrite(trigPinRight, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigPinRight, LOW);
 
-  // Read the duration of the echo pulse from the echoPin
-  duration_right = pulseIn(echoPinRight, HIGH);
+// Set the trigPin HIGH for 10 microseconds to trigger the sensor
+digitalWrite(trigPinRight, HIGH);
+delayMicroseconds(10);
+digitalWrite(trigPinRight, LOW);
 
-  // Calculate the distance in centimeters
-  distance_mm_right = duration_right * 0.34 / 2.0;
+// Read the duration of the echo pulse from the echoPin
+duration_right = pulseIn(echoPinRight, HIGH);
 
-  //open gripper
-  if(distance_mm_right<=35)
+// Calculate the distance in centimeters
+distance_mm_right = duration_right * 0.34 / 2.0;
+
+  //Left Sesnor Activated
+  
+  if(test_val == 'l')
   {
 
-
-    ser1.write(upValLeft);// the servo will move according to position 
+    right_servo.write(ClearValRight);
     delay(1000);//delay for the servo to get to the position
-    ser2.write(upValRight);
+    left_servo.write(PushValLeft);// the servo will move according to position 
     delay(3000);
-    ser1.write(downValLeft);// the servo will move according to position
+    left_servo.write(downValLeft);// the servo will move according to position
     delay(1000);
-    ser2.write(downValRight);
+    right_servo.write(downValRight);
+
+  }
+
+  else if(test_val == 'r')
+  {
+    left_servo.write(ClearValLeft);// the servo will move according to position 
+    delay(1000);//delay for the servo to get to the position
+    right_servo.write(PushValRight);
+    delay(3000);
+    right_servo.write(downValRight);
+    delay(1000);
+    left_servo.write(downValLeft);// the servo will move according to position
+ 
+    
 
   }
 
   
   // Print the distance to the serial monitor
-  Serial.print("Distance: ");
-  Serial.println(distance_mm_right);
-  Serial.println(" mm");
+  //Serial.print("Distance: ");
+  //Serial.println(distance_mm_right);
+  //Serial.println(" mm");
   //Serial.print(duration);
 
   // Wait before taking the next measurement
