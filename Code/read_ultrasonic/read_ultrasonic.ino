@@ -36,8 +36,8 @@ void setup() {
   Serial.begin(9600);
 
   // Define pin modes
-  pinMode(trigPinRight, OUTPUT);
-  pinMode(trigPinLeft, OUTPUT);
+  pinMode(trigPin, OUTPUT);
+  pinMode(trigPin, OUTPUT);
   pinMode(echoPinRight, INPUT);
   pinMode(echoPinLeft, INPUT);
 
@@ -60,14 +60,14 @@ void loop() {
   }
   // put your main code here, to run repeatedly:
 // Clear the trigPin by setting it LOW for 2 microseconds
-digitalWrite(trigPinRight, LOW);
+digitalWrite(trigPin, LOW);
 delayMicroseconds(2);
 
 
 // Set the trigPin HIGH for 10 microseconds to trigger the sensor
-digitalWrite(trigPinRight, HIGH);
+digitalWrite(trigPin, HIGH);
 delayMicroseconds(10);
-digitalWrite(trigPinRight, LOW);
+digitalWrite(trigPin, LOW);
 
 // Read the duration of the echo pulse from the echoPin
 duration_right = pulseIn(echoPinRight, HIGH);
@@ -93,7 +93,7 @@ distance_mm_left  = duration_left  * 0.34 / 2.0;
 
   }
 
-  else if(test_val == 'r' || distance_mm_right<30)
+  else if(test_val == 'r' || distance_mm_right<35)
   {
     left_servo.write(ClearValLeft);// the servo will move according to position 
     delay(1000);//delay for the servo to get to the position
