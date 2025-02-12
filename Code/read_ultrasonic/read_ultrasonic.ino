@@ -2,10 +2,9 @@
 #include<Servo.h> //include server library
 
 // Define the pins for the ultrasonic sensor
-const int trigPinRight = 9; // Trig pin of the ultrasonic sensor
-const int echoPinRight = 10; // Echo pin of the ultrasonic sensor
-const int trigPinLeft  = 7;
-const int echoPinLeft  = 8;
+const int trigPin = 9; // Trig pin of the ultrasonic sensor
+const int echoPinRight = 10; // Echo pin of the ultrasonic sensor right
+const int echoPinLeft  = 8;  // Echo pin of the left ultraonic 
 
 // Create Servo Objects
 Servo left_servo; 
@@ -14,7 +13,7 @@ Servo right_servo;
 const int servo_left_pin = 11;
 const int servo_right_pin = 5; 
 
-int test_val;
+char test_val = '\0';  // Initialize with a default value
 
 int ClearValRight = 0; //Right Paddle Up position
 int downValRight = 80; //right paddle down position
@@ -72,13 +71,16 @@ digitalWrite(trigPinRight, LOW);
 
 // Read the duration of the echo pulse from the echoPin
 duration_right = pulseIn(echoPinRight, HIGH);
+duration_left = pulseIn(echoPinLeft, HIGH);
 
 // Calculate the distance in centimeters
 distance_mm_right = duration_right * 0.34 / 2.0;
+distance_mm_left  = duration_left  * 0.34 / 2.0;
+
 
   //Left Sesnor Activated
   
-  if(test_val == 'l')
+  if(test_val == 'l' || distance_mm_left <30)
   {
 
     right_servo.write(ClearValRight);
@@ -91,7 +93,7 @@ distance_mm_right = duration_right * 0.34 / 2.0;
 
   }
 
-  else if(test_val == 'r')
+  else if(test_val == 'r' || distance_mm_right<30)
   {
     left_servo.write(ClearValLeft);// the servo will move according to position 
     delay(1000);//delay for the servo to get to the position
