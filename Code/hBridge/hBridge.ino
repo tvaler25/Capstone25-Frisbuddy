@@ -1,5 +1,5 @@
 int PWMPin = 3; int DirPin = 2;
-int power = 10;
+int power = 165;
 int val;
 
 void setup() {

@@ -2,23 +2,23 @@
 #include<Servo.h> //include server library
 
 // Define the pins for the ultrasonic sensor
-const int trigPin = 9; // Trig pin of the ultrasonic sensor
-const int echoPinRight = 10; // Echo pin of the ultrasonic sensor right
-const int echoPinLeft  = 8;  // Echo pin of the left ultraonic 
+const int trigPin = 4; // Trig pin of the ultrasonic sensor
+const int echoPinRight = 5; // Echo pin of the ultrasonic sensor right
+const int echoPinLeft  = 6;  // Echo pin of the left ultraonic 
 
 // Create Servo Objects
 Servo left_servo; 
 Servo right_servo;
 
-const int servo_left_pin = 11;
-const int servo_right_pin = 5; 
+const int servo_left_pin = 7;
+const int servo_right_pin = 8; 
 
 char test_val = '\0';  // Initialize with a default value
 
 int ClearValRight = 0; //Right Paddle Up position
-int downValRight = 80; //right paddle down position
+int downValRight = 73; //right paddle down position
 int PushValLeft = 30;  //left paddle up position
-int downValLeft = 100; //left paddle down position
+int downValLeft = 60; //left paddle down position
 int ClearValLeft = 180;
 int PushValRight = 160;
 
@@ -82,19 +82,28 @@ distance_mm_left  = duration_left  * 0.34 / 2.0;
   
   if(test_val == 'l' || distance_mm_left <30)
   {
-
+    right_servo.write(103);
+    left_servo.write(90);
+    delay(3000);
     right_servo.write(ClearValRight);
-    delay(1000);//delay for the servo to get to the position
-    left_servo.write(PushValLeft);// the servo will move according to position 
     delay(3000);
     left_servo.write(downValLeft);// the servo will move according to position
     delay(1000);
     right_servo.write(downValRight);
+    
+    //right_servo.write(ClearValRight);
+    //delay(1000);//delay for the servo to get to the position
+    //left_servo.write(PushValLeft);// the servo will move according to position 
+    //delay(3000);
+    //left_servo.write(downValLeft);// the servo will move according to position
+    //delay(1000);
+    //right_servo.write(downValRight);
 
   }
 
-  else if(test_val == 'r' || distance_mm_right<35)
+  else if(test_val == 'r' || distance_mm_right<33)
   {
+    delay(3000);
     left_servo.write(ClearValLeft);// the servo will move according to position 
     delay(1000);//delay for the servo to get to the position
     right_servo.write(PushValRight);
