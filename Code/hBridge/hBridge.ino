@@ -1,5 +1,5 @@
 int PWMPin = 3; int DirPin = 2;
-int power = 10;
+int power = 165;
 int val;
 
 void setup() {
@@ -9,7 +9,8 @@ void setup() {
   pinMode(DirPin, OUTPUT);
   
   digitalWrite(DirPin, HIGH);
-  digitalWrite(PWMPin, power);
+  analogWrite(PWMPin, power);
+  Serial.print(power);
 }
 
 void loop() {
@@ -17,15 +18,24 @@ void loop() {
   if (Serial.available()){
     val = Serial.read();
 
-    if(val == '=') {
+    if(val == '-') {
       power = power - 5;
-      digitalWrite(PWMPin, power);
+      if(power<0) {
+        power=0; 
+      }
+      Serial.println(power);
+      analogWrite(PWMPin, power);
     }
 
-    if(val == '-') {
+    if(val == '+') {
       power = power + 5;
-      digitalWrite(PWMPin, power);
+      if(power>255) {
+        power=255; 
+      }
+      Serial.println(power);
+      analogWrite(PWMPin, power);
     }
+
 
   }
 }

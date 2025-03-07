@@ -1,119 +1,122 @@
-//Define servo motor connections:
-#include<Servo.h> //include server library
+#include <Servo.h> // Include servo library
 
 // Define the pins for the ultrasonic sensor
-const int trigPin = 9; // Trig pin of the ultrasonic sensor
-const int echoPinRight = 10; // Echo pin of the ultrasonic sensor right
-const int echoPinLeft  = 8;  // Echo pin of the left ultraonic 
+const int trigPin = 4; // Shared Trig pin
+const int echoPinRight = 5; // Echo pin for right sensor
+const int echoPinLeft  = 6; // Echo pin for left sensor
 
 // Create Servo Objects
 Servo left_servo; 
 Servo right_servo;
 
-const int servo_left_pin = 11;
-const int servo_right_pin = 5; 
+const int servo_left_pin = 7;
+const int servo_right_pin = 8; 
 
 char test_val = '\0';  // Initialize with a default value
 
-int ClearValRight = 0; //Right Paddle Up position
-int downValRight = 80; //right paddle down position
-int PushValLeft = 30;  //left paddle up position
-int downValLeft = 100; //left paddle down position
-int ClearValLeft = 180;
-int PushValRight = 160;
+// Servo positions
+const int ClearValRight = 0; 
+const int downValRight = 73;
+const int PushValLeft = 30;  
+const int downValLeft = 60;
+const int ClearValLeft = 180;
+const int PushValRight = 160;
 
+// Sensor variables
+long duration_right, duration_left;
+long distance_mm_right, distance_mm_left;
 
-// Variables for the duration of the pulse and the distance
-long duration_right;
-long distance_mm_right;
-
-long duration_left;
-long distance_mm_left; 
-
+// Filter settings
+const int numSamples = 5; // Number of readings to average
+long filteredDistanceRight = 0;
+long filteredDistanceLeft = 0;
 
 void setup() {
-
   Serial.begin(9600);
 
-  // Define pin modes
-  pinMode(trigPin, OUTPUT);
   pinMode(trigPin, OUTPUT);
   pinMode(echoPinRight, INPUT);
   pinMode(echoPinLeft, INPUT);
 
-  left_servo.attach(servo_left_pin);// servo is connected at pin 5
-
-  left_servo.write(downValLeft);// the servo will move according to position 
+  left_servo.attach(servo_left_pin);
+  left_servo.write(downValLeft);
   
   right_servo.attach(servo_right_pin);
   right_servo.write(downValRight);
 
-  delay(2000); //delay for the servo to get to the position
-
+  delay(2000); // Allow servos to reach the position
 }
 
 void loop() {
-
-  
-  if (Serial.available()){
-  test_val = Serial.read();
+  if (Serial.available()) {
+    test_val = Serial.read();
   }
-  // put your main code here, to run repeatedly:
-// Clear the trigPin by setting it LOW for 2 microseconds
-digitalWrite(trigPin, LOW);
-delayMicroseconds(2);
 
+  // Get filtered distance readings
+  filteredDistanceRight = getFilteredDistance(echoPinRight);
+  filteredDistanceLeft = getFilteredDistance(echoPinLeft);
 
-// Set the trigPin HIGH for 10 microseconds to trigger the sensor
-digitalWrite(trigPin, HIGH);
-delayMicroseconds(10);
-digitalWrite(trigPin, LOW);
+  Serial.print("Right: ");
+  Serial.print(filteredDistanceRight);
+  Serial.print(" mm | Left: ");
+  Serial.println(filteredDistanceLeft);
 
-// Read the duration of the echo pulse from the echoPin
-duration_right = pulseIn(echoPinRight, HIGH);
-duration_left = pulseIn(echoPinLeft, HIGH);
-
-// Calculate the distance in centimeters
-distance_mm_right = duration_right * 0.34 / 2.0;
-distance_mm_left  = duration_left  * 0.34 / 2.0;
-
-
-  //Left Sesnor Activated
-  
-  if(test_val == 'l' || distance_mm_left <30)
-  {
-
-    right_servo.write(ClearValRight);
-    delay(1000);//delay for the servo to get to the position
-    left_servo.write(PushValLeft);// the servo will move according to position 
+  // Left sensor activated
+  if (test_val == 'l' || filteredDistanceLeft < 30) {
+    right_servo.write(103);
+    left_servo.write(90);
     delay(3000);
-    left_servo.write(downValLeft);// the servo will move according to position
+    right_servo.write(ClearValRight);
+    delay(3000);
+    left_servo.write(downValLeft);
     delay(1000);
     right_servo.write(downValRight);
-
   }
-
-  else if(test_val == 'r' || distance_mm_right<35)
-  {
-    left_servo.write(ClearValLeft);// the servo will move according to position 
-    delay(1000);//delay for the servo to get to the position
+  // Right sensor activated
+  else if (test_val == 'r' || filteredDistanceRight < 33) {
+    delay(3000);
+    left_servo.write(ClearValLeft);
+    delay(1000);
     right_servo.write(PushValRight);
     delay(3000);
     right_servo.write(downValRight);
     delay(1000);
-    left_servo.write(downValLeft);// the servo will move according to position
- 
-    
-
+    left_servo.write(downValLeft);
   }
 
-  
-  // Print the distance to the serial monitor
-  //Serial.print("Distance: ");
-  //Serial.println(distance_mm_right);
-  //Serial.println(" mm");
-  //Serial.print(duration);
+  delay(500);
+}
 
-  // Wait before taking the next measurement
-  delay(500); // Adjust delay as needed for your application
+// Function to get a filtered distance using multiple samples
+long getFilteredDistance(int echoPin) {
+  long sum = 0;
+  long validSamples = 0;
+  long previousReading = 0;
+
+  for (int i = 0; i < numSamples; i++) {
+    long distance = getDistance(echoPin);
+    
+    // Ignore outlier readings (change threshold as needed)
+    if (i == 0 || abs(distance - previousReading) < 50) {
+      sum += distance;
+      validSamples++;
+    }
+    
+    previousReading = distance;
+    delay(10); // Small delay between samples
+  }
+
+  return validSamples > 0 ? sum / validSamples : previousReading; // Return average distance
+}
+
+// Function to get a single distance reading
+long getDistance(int echoPin) {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  long duration = pulseIn(echoPin, HIGH);
+  return duration * 0.34 / 2.0; // Convert to mm
 }
