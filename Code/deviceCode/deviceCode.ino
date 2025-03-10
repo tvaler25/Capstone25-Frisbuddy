@@ -15,7 +15,7 @@
 //Set digital pin numbers
 int motorDirPin = 2; int motorPWMPin = 3;
 int reorienterTriggerPin = 4; int reorienterEchoRightPin = 5; int reorienterEchoLeftPin = 6;
-int reorienterServoRightPin = 7; int reorienterServoLeftPin = 8;
+int reorienterServoRightPin = 8; int reorienterServoLeftPin = 7;
 int pusherServoPin = 9;
 int reserveGateServoPin = 10; int reserveLifterServoPin = 11;
 int aimerIn1Pin = 12; int aimerIn2Pin = 13;
@@ -52,7 +52,9 @@ long filteredDistanceRight = 0; //filter settings
 long filteredDistanceLeft = 0;
 const int numSamples = 5; // Number of readings to average
 
-int rightDistanceBound = 33; int leftDistanceBound = 33;
+int rightDistanceBound = 40; int leftDistanceBound = 35;
+
+
 
 // Pusher constants: 
 int pusherBack = 5; int pusherForward = 90;
@@ -78,6 +80,7 @@ void setup() {
   pinMode(reorienterTriggerPin, OUTPUT); pinMode(reorienterEchoLeftPin, INPUT); pinMode(reorienterEchoRightPin, INPUT); //reserve stack 
   servoRight.attach(reorienterServoRightPin); servoLeft.attach(reorienterServoLeftPin);
   servoPusher.attach(pusherServoPin); //pusher
+  servoPusher.write(pusherBack);
   servoGate.attach(reserveGateServoPin); servoLifter.attach(reserveLifterServoPin); //reserve stack
   pinMode(aimerIn1Pin, OUTPUT); pinMode(aimerIn2Pin, OUTPUT); //aimer
 
@@ -90,7 +93,10 @@ void setup() {
 
   servoGate.write(gateDown); servoLifter.write(lifterDown); //reserve stack
 
-  IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK); //IR Receiver
+  //IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK); //IR Receiver
+
+  servoLeft.write(downValLeft);
+  servoRight.write(downValRight);
   
 }
 
@@ -104,7 +110,7 @@ void loop() {
     //Get filtered distance readings
     filteredDistanceRight = getFilteredDistance(reorienterEchoRightPin);
     filteredDistanceLeft = getFilteredDistance(reorienterEchoLeftPin);
-
+    //Serial.println(filteredDistanceRight);
     //Serial.print("Right: ");
     //Serial.print(filteredDistanceRight);
     //Serial.print(" mm | Left: ");
@@ -118,27 +124,24 @@ void loop() {
   while(filteredDistanceRight < rightDistanceBound && filteredDistanceLeft < leftDistanceBound && !IrReceiver.decode());
 
   //reorient right
-  if(filteredDistanceRight >= rightDistanceBound) {
-    servoRight.write(103);
-    servoLeft.write(90);
-    delay(3000);
-    servoRight.write(ClearValRight);
-    delay(3000);
+  if(filteredDistanceRight <= rightDistanceBound) {
+    
+    delay(500);
+    servoLeft.write(ClearValLeft);
+    delay(500);
     servoLeft.write(downValLeft);
-    delay(1000);
-    servoRight.write(downValRight);
   }
 
   //reorient left
-  else if(filteredDistanceLeft >= leftDistanceBound) {
-    delay(3000);
-    servoLeft.write(ClearValLeft);
-    delay(1000);
-    servoRight.write(PushValRight);
-    delay(3000);
-    servoRight.write(downValRight);
+  else if(filteredDistanceLeft <= leftDistanceBound) {
+    //Serial.println("Left sensor tirggered ");
+    delay(500);
+    servoRight.write(ClearValRight);
+    delay(500);
+    servoLeft.write(PushValLeft);
     delay(1000);
     servoLeft.write(downValLeft);
+    servoRight.write(downValRight);
   }
 
   //pull from reserve stack
@@ -154,6 +157,7 @@ void loop() {
 
   //push disc into wheel, give warning with buzzer
   tone(buzzerPin, 750); 
+  
   for (int pos = pusherBack; pos <= pusherForward; pos += 1) { // Increase angle in small steps
     servoPusher.write(pos);
     delay(40);  // Small delay for smoother motion
@@ -164,7 +168,7 @@ void loop() {
     delay(40);
   }
   noTone(buzzerPin); // Decrease angle in small steps
-
+/*
   //aim
   delay(2000); //wait for disc to pass the aimer
   int aimerAngle = (random(3) - 1) * 30; //random between -30, 0, 30
@@ -179,6 +183,7 @@ void loop() {
       moveToPosition(R);
       break;
   }
+  */
 }
 
 //----------------------------------------ADDITIONAL FUNCTIONS------------------------------------------

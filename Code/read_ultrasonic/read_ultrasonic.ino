@@ -5,9 +5,16 @@ const int trigPin = 4; // Shared Trig pin
 const int echoPinRight = 5; // Echo pin for right sensor
 const int echoPinLeft  = 6; // Echo pin for left sensor
 
+//main motor run
+int PWMPin = 3; int DirPin = 2;
+int power = 0;
+int val;
+
+
 // Create Servo Objects
 Servo left_servo; 
 Servo right_servo;
+
 
 const int servo_left_pin = 7;
 const int servo_right_pin = 8; 
@@ -33,6 +40,16 @@ long filteredDistanceLeft = 0;
 
 void setup() {
   Serial.begin(9600);
+
+//run main motor
+  pinMode(PWMPin, OUTPUT);
+  pinMode(DirPin, OUTPUT);
+  
+  digitalWrite(DirPin, HIGH);
+  analogWrite(PWMPin, power);
+  Serial.print(power);
+//********
+
 
   pinMode(trigPin, OUTPUT);
   pinMode(echoPinRight, INPUT);
@@ -62,27 +79,29 @@ void loop() {
   Serial.println(filteredDistanceLeft);
 
   // Left sensor activated
-  if (test_val == 'l' || filteredDistanceLeft < 30) {
-    right_servo.write(103);
-    left_servo.write(90);
-    delay(3000);
+  if (test_val == 'l' || filteredDistanceLeft < 50) {
+    delay(500);
     right_servo.write(ClearValRight);
-    delay(3000);
-    left_servo.write(downValLeft);
+    delay(500);
+    left_servo.write(PushValLeft);
     delay(1000);
+    left_servo.write(downValLeft);
     right_servo.write(downValRight);
+
   }
   // Right sensor activated
-  else if (test_val == 'r' || filteredDistanceRight < 33) {
-    delay(3000);
+  else if (test_val == 'r' || filteredDistanceRight < 40) {
+    delay(500);
     left_servo.write(ClearValLeft);
-    delay(1000);
-    right_servo.write(PushValRight);
-    delay(3000);
-    right_servo.write(downValRight);
-    delay(1000);
+    delay(500);
     left_servo.write(downValLeft);
+
+
+    
+
   }
+
+  
 
   delay(500);
 }
