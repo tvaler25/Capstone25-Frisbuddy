@@ -55,7 +55,7 @@ const int numSamples = 5; // Number of readings to average
 int rightDistanceBound = 33; int leftDistanceBound = 33;
 
 // Pusher constants: 
-int pusherBack = 30; int pusherForward = 150;
+int pusherBack = 5; int pusherForward = 90;
 
 //Reserve stack constants:
 int lifterDown = 10; int lifterUp = 70;
@@ -156,12 +156,12 @@ void loop() {
   tone(buzzerPin, 750); 
   for (int pos = pusherBack; pos <= pusherForward; pos += 1) { // Increase angle in small steps
     servoPusher.write(pos);
-    delay(20);  // Small delay for smoother motion
+    delay(40);  // Small delay for smoother motion
   } 
   delay(1000);
   for (int pos = pusherForward; pos >= pusherBack; pos -= 1) { 
     servoPusher.write(pos);
-    delay(20);
+    delay(40);
   }
   noTone(buzzerPin); // Decrease angle in small steps
 
