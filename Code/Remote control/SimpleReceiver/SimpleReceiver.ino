@@ -44,8 +44,8 @@
 //#define DECODE_PANASONIC    // alias for DECODE_KASEIKYO
 //#define DECODE_LG
 //#define DECODE_NEC          // Includes Apple and Onkyo. To enable all protocols , just comment/disable this line.
-#define DECODE_SAMSUNG
-//#define DECODE_SONY
+//#define DECODE_SAMSUNG
+#define DECODE_SONY
 //#define DECODE_RC5
 //#define DECODE_RC6
 
@@ -72,18 +72,18 @@
 
 void setup() {
     Serial.begin(115200);
-    while (!Serial)
-        ; // Wait for Serial to become available. Is optimized away for some cores.
+    //while (!Serial)
+    //    ; // Wait for Serial to become available. Is optimized away for some cores.
 
     // Just to know which program is running on my Arduino
-    Serial.println(F("START " __FILE__ " from " __DATE__ "\r\nUsing library version " VERSION_IRREMOTE));
+    //Serial.println(F("START " __FILE__ " from " __DATE__ "\r\nUsing library version " VERSION_IRREMOTE));
 
     // Start the receiver and if not 3. parameter specified, take LED_BUILTIN pin from the internal boards definition as default feedback LED
-    IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
+    IrReceiver.begin(A3, ENABLE_LED_FEEDBACK);
 
-    Serial.print(F("Ready to receive IR signals of protocols: "));
-    printActiveIRProtocols(&Serial);
-    Serial.println(F("at pin " STR(IR_RECEIVE_PIN)));
+    //Serial.print(F("Ready to receive IR signals of protocols: "));
+    //printActiveIRProtocols(&Serial);
+    //Serial.println(F("at pin " STR(A3)));
 }
 
 void loop() {
