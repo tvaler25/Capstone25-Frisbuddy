@@ -1,13 +1,13 @@
 #include <ezButton.h>
 
 // Define pins for motor control (L298N)
-const int enablePin = 7;  // Enable pin for motor (typically HIGH for enabling)
-const int motorPin1 = 6;  // Motor A pin 1
-const int motorPin2 = 5;  // Motor A pin 2
+const int enablePin = A5;  // Enable pin for motor (typically HIGH for enabling)
+const int motorPin1 = 12;  // Motor A pin 1
+const int motorPin2 = 13;  // Motor A pin 2
 
 // Define pins for limit switches
-const int limitSwitch1Pin = 4;  // Limit switch 1 (left side)
-const int limitSwitch2Pin = 3;  // Limit switch 2 (right side)
+const int limitSwitch1Pin = A0;  // Limit switch 1 (left side)
+const int limitSwitch2Pin = A1;  // Limit switch 2 (right side)
 
 // Initialize the ezButton objects
 ezButton limitSwitch1(limitSwitch1Pin);
@@ -74,12 +74,12 @@ void moveToPosition(Position targetPosition) {
     Serial.println("Moving to LEFT...");
     moveMotor(true);  // Move motor to the left
     delay(750);
-    while (!limitSwitch1.isPressed()) {
-       // Wait until the left limit switch is pressed
-           if (limitSwitch1.isPressed()) {
-      Serial.println(F("The limit switch 1: TOUCHED"));
-      }
-    }
+    // while (!limitSwitch1.isPressed()) {
+    //    // Wait until the left limit switch is pressed
+    //        if (limitSwitch1.isPressed()) {
+    //   Serial.println(F("The limit switch 1: TOUCHED"));
+    //   }
+    // }
     stopMotor();
     Serial.println("Reached LEFT position.");
     currentPosition = LEFT;
@@ -87,12 +87,12 @@ void moveToPosition(Position targetPosition) {
     Serial.println("Moving to RIGHT...");
     moveMotor(false);  // Move motor to the right
     delay(750);
-     while (!limitSwitch2.isPressed()) {
-       // Wait until the right limit switch is pressed
-             if (limitSwitch2.isPressed()) {
-      Serial.println(F("The limit switch 2: TOUCHED"));
-      }
-     }
+    //  while (!limitSwitch2.isPressed()) {
+    //    // Wait until the right limit switch is pressed
+    //          if (limitSwitch2.isPressed()) {
+    //   Serial.println(F("The limit switch 2: TOUCHED"));
+    //   }
+    // }
     stopMotor();
     Serial.println("Reached RIGHT position.");
     currentPosition = RIGHT;

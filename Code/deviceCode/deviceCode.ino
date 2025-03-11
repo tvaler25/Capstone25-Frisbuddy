@@ -8,13 +8,12 @@
 //#include "PinDefinitionsAndMore.h"
 #include <IRremote.hpp> // include the library
 #include <ezButton.h>
-#define DECODE_SAMSUNG
 
 //---------------------------------------PIN NUMBERS & OBJECTS----------------------------------
 
 //Set digital pin numbers
-int motorDirPin = 2; int motorPWMPin = 3;
-int reorienterTriggerPin = 4; int reorienterEchoRightPin = 5; int reorienterEchoLeftPin = 6;
+int motorDirPin = 4; int motorPWMPin = 5;
+int reorienterTriggerPin = 2; int reorienterEchoRightPin = 3; int reorienterEchoLeftPin = 6;
 int reorienterServoRightPin = 8; int reorienterServoLeftPin = 7;
 int pusherServoPin = 9;
 int reserveGateServoPin = 10; int reserveLifterServoPin = 11;
@@ -24,6 +23,7 @@ int aimerIn1Pin = 12; int aimerIn2Pin = 13;
 int aimerLeftSignalPin = A0; int aimerRightSignalPin = A1;
 int buzzerPin = A2;
 int IRReceiverPin = A3;
+int aimerEnablePin = A5;
 
 //Initialize objects
 Servo servoLeft; Servo servoRight;
@@ -74,6 +74,7 @@ Position currentPosition = MIDDLE;
 void setup() {
 
   Serial.begin(9600);
+  delay(2000);
 
   //Set pin modes or attach servos
   pinMode(motorDirPin, OUTPUT); pinMode(motorPWMPin, OUTPUT); //motor
@@ -87,17 +88,22 @@ void setup() {
   pinMode(aimerLeftSignalPin, INPUT); pinMode(aimerRightSignalPin, INPUT);
   pinMode(buzzerPin, OUTPUT); //buzzer
   pinMode(IRReceiverPin, INPUT); //IR signal
+  pinMode(aimerEnablePin, OUTPUT);
 
   //Write default values to pins
   digitalWrite(motorDirPin, HIGH); analogWrite(motorPWMPin, motorPower);
-
+  servoLeft.write(downValLeft); servoRight.write(downValRight);
+  servoPusher.write(pusherBack);
   servoGate.write(gateDown); servoLifter.write(lifterDown); //reserve stack
 
-  //IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK); //IR Receiver
+  digitalWrite(aimerEnablePin, HIGH);
+  moveMotor(1);
+  delay(1500);
+  moveMotor(0);
+  delay(600);
+  stopMotor();
+  digitalWrite(aimerEnablePin, LOW);
 
-  servoLeft.write(downValLeft);
-  servoRight.write(downValRight);
-  
 }
 
 //--------------------------------------------MAIN LOOP--------------------------------------------------------
@@ -106,27 +112,18 @@ void loop() {
   
   //wait for signal from either reorienter or remote
   do {
-
     //Get filtered distance readings
     filteredDistanceRight = getFilteredDistance(reorienterEchoRightPin);
     filteredDistanceLeft = getFilteredDistance(reorienterEchoLeftPin);
-    //Serial.println(filteredDistanceRight);
-    //Serial.print("Right: ");
-    //Serial.print(filteredDistanceRight);
-    //Serial.print(" mm | Left: ");
-    //Serial.println(filteredDistanceLeft);
-
-    
-
-    delay(100); //check every 100 ms
-
+    delay(200); //check every 100 ms
   }
-  while(filteredDistanceRight < rightDistanceBound && filteredDistanceLeft < leftDistanceBound && !IrReceiver.decode());
-
+  while(filteredDistanceRight > rightDistanceBound && filteredDistanceLeft > leftDistanceBound);
+  Serial.println("Disc sensed");
+  
   //reorient right
   if(filteredDistanceRight <= rightDistanceBound) {
     
-    delay(500);
+    delay(200);
     servoLeft.write(ClearValLeft);
     delay(500);
     servoLeft.write(downValLeft);
@@ -135,7 +132,7 @@ void loop() {
   //reorient left
   else if(filteredDistanceLeft <= leftDistanceBound) {
     //Serial.println("Left sensor tirggered ");
-    delay(500);
+    delay(200);
     servoRight.write(ClearValRight);
     delay(500);
     servoLeft.write(PushValLeft);
@@ -145,7 +142,7 @@ void loop() {
   }
 
   //pull from reserve stack
-  else if(IrReceiver.decodedIRData.command == 0xC) {
+  /*else if(IrReceiver.decodedIRData.command == 0xC) {
     servoLifter.write(lifterUp); //lift discs up
     delay(1000);
     servoGate.write(gateUp); //open gate
@@ -153,37 +150,44 @@ void loop() {
     servoGate.write(gateDown); //close gate
     delay(1000);
     servoLifter.write(lifterDown);//lower linkage
-  }
+  }*/
 
   //push disc into wheel, give warning with buzzer
-  tone(buzzerPin, 750); 
-  
+  delay(1500);
+  tone(buzzerPin, 750);   
   for (int pos = pusherBack; pos <= pusherForward; pos += 1) { // Increase angle in small steps
     servoPusher.write(pos);
-    delay(40);  // Small delay for smoother motion
+    delay(50);  // Small delay for smoother motion
   } 
+  noTone(buzzerPin); 
   delay(1000);
-  for (int pos = pusherForward; pos >= pusherBack; pos -= 1) { 
+  for (int pos = pusherForward; pos >= pusherBack; pos -= 1) { // Decrease angle in small steps
     servoPusher.write(pos);
-    delay(40);
+    delay(50);
   }
-  noTone(buzzerPin); // Decrease angle in small steps
-/*
+  
+
   //aim
-  delay(2000); //wait for disc to pass the aimer
+  //delay(2000); //wait for disc to pass the aimer
+  digitalWrite(aimerEnablePin, HIGH);
+
   int aimerAngle = (random(3) - 1) * 30; //random between -30, 0, 30
+  Serial.println(aimerAngle);
+  //int aimerAngle = 0; int nextAngle = -30;
+  
   switch (aimerAngle) {
     case -30:
-      moveToPosition(L);
+      moveToPosition(LEFT);
       break;
     case 0:
-      moveToPosition(M);
+      moveToPosition(MIDDLE);
       break;
     case 30:
-      moveToPosition(R);
+      moveToPosition(RIGHT);
       break;
   }
-  */
+  digitalWrite(aimerEnablePin, LOW);
+  //Serial.println("Loop complete");
 }
 
 //----------------------------------------ADDITIONAL FUNCTIONS------------------------------------------
@@ -225,57 +229,53 @@ long getDistance(int echoPin) {
 void moveToPosition(Position targetPosition) {
 
   if (targetPosition == currentPosition) {
-    Serial.println("Motor is already in the desired position.");
+    //Serial.println("Motor is already in the desired position.");
     return;
   }
+  
 
   // Move towards the target position
   if (targetPosition == LEFT) {
     Serial.println("Moving to LEFT...");
     moveMotor(true);  // Move motor to the left
-    //delay(750);
-    while (!limitSwitch1.isPressed()) {
+    delay(1200);
+    /*while (!limitSwitch1.isPressed()) {
        // Wait until the left limit switch is pressed
            if (limitSwitch1.isPressed()) {
       Serial.println(F("The limit switch 1: TOUCHED"));
       }
-    }
+    }*/
     stopMotor();
-    Serial.println("Reached LEFT position.");
+    //Serial.println("Reached LEFT position.");
     currentPosition = LEFT;
   } 
   else if (targetPosition == RIGHT) {
     Serial.println("Moving to RIGHT...");
     moveMotor(false);  // Move motor to the right
-    //delay(750);
-    while (!limitSwitch2.isPressed()) {
+    delay(1200);
+    /*while (!limitSwitch2.isPressed()) {
       // Wait until the right limit switch is pressed
       if (limitSwitch2.isPressed()) {
          Serial.println(F("The limit switch 2: TOUCHED"));
       }
-    }
+    }*/
     stopMotor();
-    Serial.println("Reached RIGHT position.");
+    //Serial.println("Reached RIGHT position.");
     currentPosition = RIGHT;
   } 
   else if (targetPosition == MIDDLE) {
     // Move to middle position after interacting with the end switch
+    Serial.println("Moving to MIDDLE...");
     if (currentPosition == LEFT) {
-      Serial.println("Moving to MIDDLE...");
       moveMotor(false);  // Move motor to the right from left
-      delay(750);  // Move for 2 seconds to find the middle
-      stopMotor();  // Stop motor after 0.5 seconds
-      Serial.println("Reached MIDDLE position.");
-      currentPosition = MIDDLE;
     } 
     else if (currentPosition == RIGHT) {
-      Serial.println("Moving to MIDDLE...");
       moveMotor(true);  // Move motor to the left from right
-      delay(750);  // Move for 2 seconds to find the middle
-      stopMotor();  // Stop motor after 0.5 seconds
-      Serial.println("Reached MIDDLE position.");
-      currentPosition = MIDDLE;
     }
+    delay(600);  // Move for 2 seconds to find the middle
+      stopMotor();  // Stop motor after 0.5 seconds
+      //Serial.println("Reached MIDDLE position.");
+      currentPosition = MIDDLE;
   }
 }
 
