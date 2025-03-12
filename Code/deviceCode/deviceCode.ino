@@ -96,6 +96,8 @@ void setup() {
   servoPusher.write(pusherBack);
   servoGate.write(gateDown); servoLifter.write(lifterDown); //reserve stack
 
+  IrReceiver.begin(IRReceiverPin, ENABLE_LED_FEEDBACK);
+
   digitalWrite(aimerEnablePin, HIGH);
   moveMotor(1);
   delay(1500);
@@ -117,7 +119,7 @@ void loop() {
     filteredDistanceLeft = getFilteredDistance(reorienterEchoLeftPin);
     delay(200); //check every 100 ms
   }
-  while(filteredDistanceRight > rightDistanceBound && filteredDistanceLeft > leftDistanceBound);
+  while(filteredDistanceRight > rightDistanceBound && filteredDistanceLeft > leftDistanceBound && !IrReceiver.decode());
   Serial.println("Disc sensed");
   
   //reorient right
@@ -142,7 +144,7 @@ void loop() {
   }
 
   //pull from reserve stack
-  /*else if(IrReceiver.decodedIRData.command == 0xC) {
+  else if(IrReceiver.decode()) {
     servoLifter.write(lifterUp); //lift discs up
     delay(1000);
     servoGate.write(gateUp); //open gate
@@ -150,9 +152,10 @@ void loop() {
     servoGate.write(gateDown); //close gate
     delay(1000);
     servoLifter.write(lifterDown);//lower linkage
-  }*/
+    IrReceiver.resume();
+  }
 
-  //push disc into wheel, give warning with buzzer
+  //delay to let disc settle, then push disc into wheel, then give warning with buzzer
   delay(1500);
   tone(buzzerPin, 750);   
   for (int pos = pusherBack; pos <= pusherForward; pos += 1) { // Increase angle in small steps

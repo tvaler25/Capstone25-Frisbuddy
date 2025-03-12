@@ -70,7 +70,7 @@
 #include "PinDefinitionsAndMore.h"
 #include <IRremote.hpp> // include the library
 
-void setup() {
+void setup() { 
     Serial.begin(115200);
     //while (!Serial)
     //    ; // Wait for Serial to become available. Is optimized away for some cores.
