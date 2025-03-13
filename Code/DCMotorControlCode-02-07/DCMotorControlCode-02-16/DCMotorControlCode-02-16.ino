@@ -33,6 +33,13 @@ void setup() {
   // Initialize motor control
   digitalWrite(enablePin, HIGH);  // Enable the motor
 
+  moveMotor(true); //move to left
+  delay(1400);
+  stopMotor();
+  moveMotor(false); //move to right
+  delay(600);
+  stopMotor();
+
   // Start serial communication
   Serial.begin(9600);
   Serial.println("Motor Control Ready.");
@@ -73,7 +80,12 @@ void moveToPosition(Position targetPosition) {
   if (targetPosition == LEFT) {
     Serial.println("Moving to LEFT...");
     moveMotor(true);  // Move motor to the left
-    delay(750);
+    if(currentPosition == MIDDLE) {
+      delay(700);
+    }
+    else if(currentPosition == RIGHT) {
+      delay(1400);
+    }
     // while (!limitSwitch1.isPressed()) {
     //    // Wait until the left limit switch is pressed
     //        if (limitSwitch1.isPressed()) {
@@ -86,7 +98,12 @@ void moveToPosition(Position targetPosition) {
   } else if (targetPosition == RIGHT) {
     Serial.println("Moving to RIGHT...");
     moveMotor(false);  // Move motor to the right
-    delay(750);
+    if(currentPosition == MIDDLE) {
+      delay(750);
+    }
+    else if(currentPosition == LEFT) {
+      delay(1400);
+    }
     //  while (!limitSwitch2.isPressed()) {
     //    // Wait until the right limit switch is pressed
     //          if (limitSwitch2.isPressed()) {
@@ -96,23 +113,22 @@ void moveToPosition(Position targetPosition) {
     stopMotor();
     Serial.println("Reached RIGHT position.");
     currentPosition = RIGHT;
-  } else if (targetPosition == MIDDLE) {
+  } 
+  else if (targetPosition == MIDDLE) {
     // Move to middle position after interacting with the end switch
-    if (currentPosition == LEFT) {
-      Serial.println("Moving to MIDDLE...");
-      moveMotor(false);  // Move motor to the right from left
-      delay(750);  // Move for 2 seconds to find the middle
-      stopMotor();  // Stop motor after 0.5 seconds
-      Serial.println("Reached MIDDLE position.");
-      currentPosition = MIDDLE;
-    } else if (currentPosition == RIGHT) {
-      Serial.println("Moving to MIDDLE...");
+    Serial.println("Moving to MIDDLE...");
+    if (currentPosition == LEFT) {  
+      moveMotor(false);  // Move motor to the right from left  
+      delay(600);
+    } 
+    else if (currentPosition == RIGHT) {
       moveMotor(true);  // Move motor to the left from right
-      delay(750);  // Move for 2 seconds to find the middle
-      stopMotor();  // Stop motor after 0.5 seconds
-      Serial.println("Reached MIDDLE position.");
-      currentPosition = MIDDLE;
+      delay(650);
     }
+      // Move for 2 seconds to find the middle
+    stopMotor();  // Stop motor after 0.5 seconds
+    Serial.println("Reached MIDDLE position.");
+    currentPosition = MIDDLE;
   }
 }
 

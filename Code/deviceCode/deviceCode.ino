@@ -22,7 +22,7 @@ int aimerIn1Pin = 12; int aimerIn2Pin = 13;
 //set analog pin numbers
 int aimerLeftSignalPin = A0; int aimerRightSignalPin = A1;
 int buzzerPin = A2;
-int IRReceiverPin = A3;
+int IRReceiverPin = 0;
 int aimerEnablePin = A5;
 
 //Initialize objects
@@ -91,20 +91,22 @@ void setup() {
   pinMode(aimerEnablePin, OUTPUT);
 
   //Write default values to pins
+  digitalWrite(aimerEnablePin, HIGH);
+  moveMotor(true); //move to left
+  delay(1400);
+  stopMotor();
+  moveMotor(false); //move to right
+  delay(600);
+  stopMotor();
+  digitalWrite(aimerEnablePin, LOW);
+
+
   digitalWrite(motorDirPin, HIGH); analogWrite(motorPWMPin, motorPower);
   servoLeft.write(downValLeft); servoRight.write(downValRight);
   servoPusher.write(pusherBack);
   servoGate.write(gateDown); servoLifter.write(lifterDown); //reserve stack
 
   IrReceiver.begin(IRReceiverPin, ENABLE_LED_FEEDBACK);
-
-  digitalWrite(aimerEnablePin, HIGH);
-  moveMotor(1);
-  delay(1500);
-  moveMotor(0);
-  delay(600);
-  stopMotor();
-  digitalWrite(aimerEnablePin, LOW);
 
 }
 
@@ -129,6 +131,7 @@ void loop() {
     servoLeft.write(ClearValLeft);
     delay(500);
     servoLeft.write(downValLeft);
+    delay(1500);
   }
 
   //reorient left
@@ -141,6 +144,7 @@ void loop() {
     delay(1000);
     servoLeft.write(downValLeft);
     servoRight.write(downValRight);
+    delay(1500);
   }
 
   //pull from reserve stack
@@ -152,31 +156,32 @@ void loop() {
     servoGate.write(gateDown); //close gate
     delay(1000);
     servoLifter.write(lifterDown);//lower linkage
+    delay(1500);
     IrReceiver.resume();
   }
 
   //delay to let disc settle, then push disc into wheel, then give warning with buzzer
-  delay(1500);
-  tone(buzzerPin, 750);   
+  
+  //tone(buzzerPin, 750);   
   for (int pos = pusherBack; pos <= pusherForward; pos += 1) { // Increase angle in small steps
     servoPusher.write(pos);
-    delay(50);  // Small delay for smoother motion
+    delay(35);  // Small delay for smoother motion
   } 
   noTone(buzzerPin); 
   delay(1000);
   for (int pos = pusherForward; pos >= pusherBack; pos -= 1) { // Decrease angle in small steps
     servoPusher.write(pos);
-    delay(50);
+    delay(35);
   }
   
 
   //aim
-  //delay(2000); //wait for disc to pass the aimer
+  delay(2000); //wait for disc to pass the aimer
   digitalWrite(aimerEnablePin, HIGH);
 
-  int aimerAngle = (random(3) - 1) * 30; //random between -30, 0, 30
-  Serial.println(aimerAngle);
-  //int aimerAngle = 0; int nextAngle = -30;
+  //int aimerAngle = (random(3) - 1) * 30; //random between -30, 0, 30
+  
+  int aimerAngle = 0;
   
   switch (aimerAngle) {
     case -30:
@@ -232,53 +237,63 @@ long getDistance(int echoPin) {
 void moveToPosition(Position targetPosition) {
 
   if (targetPosition == currentPosition) {
-    //Serial.println("Motor is already in the desired position.");
+    Serial.println("Motor is already in the desired position.");
     return;
   }
-  
 
   // Move towards the target position
   if (targetPosition == LEFT) {
     Serial.println("Moving to LEFT...");
     moveMotor(true);  // Move motor to the left
-    delay(1200);
-    /*while (!limitSwitch1.isPressed()) {
-       // Wait until the left limit switch is pressed
-           if (limitSwitch1.isPressed()) {
-      Serial.println(F("The limit switch 1: TOUCHED"));
-      }
-    }*/
+    if(currentPosition == MIDDLE) {
+      delay(700);
+    }
+    else if(currentPosition == RIGHT) {
+      delay(1400);
+    }
+    // while (!limitSwitch1.isPressed()) {
+    //    // Wait until the left limit switch is pressed
+    //        if (limitSwitch1.isPressed()) {
+    //   Serial.println(F("The limit switch 1: TOUCHED"));
+    //   }
+    // }
     stopMotor();
-    //Serial.println("Reached LEFT position.");
+    Serial.println("Reached LEFT position.");
     currentPosition = LEFT;
-  } 
-  else if (targetPosition == RIGHT) {
+  } else if (targetPosition == RIGHT) {
     Serial.println("Moving to RIGHT...");
     moveMotor(false);  // Move motor to the right
-    delay(1200);
-    /*while (!limitSwitch2.isPressed()) {
-      // Wait until the right limit switch is pressed
-      if (limitSwitch2.isPressed()) {
-         Serial.println(F("The limit switch 2: TOUCHED"));
-      }
-    }*/
+    if(currentPosition == MIDDLE) {
+      delay(750);
+    }
+    else if(currentPosition == LEFT) {
+      delay(1400);
+    }
+    //  while (!limitSwitch2.isPressed()) {
+    //    // Wait until the right limit switch is pressed
+    //          if (limitSwitch2.isPressed()) {
+    //   Serial.println(F("The limit switch 2: TOUCHED"));
+    //   }
+    // }
     stopMotor();
-    //Serial.println("Reached RIGHT position.");
+    Serial.println("Reached RIGHT position.");
     currentPosition = RIGHT;
   } 
   else if (targetPosition == MIDDLE) {
     // Move to middle position after interacting with the end switch
     Serial.println("Moving to MIDDLE...");
-    if (currentPosition == LEFT) {
-      moveMotor(false);  // Move motor to the right from left
+    if (currentPosition == LEFT) {  
+      moveMotor(false);  // Move motor to the right from left  
+      delay(600);
     } 
     else if (currentPosition == RIGHT) {
       moveMotor(true);  // Move motor to the left from right
+      delay(650);
     }
-    delay(600);  // Move for 2 seconds to find the middle
-      stopMotor();  // Stop motor after 0.5 seconds
-      //Serial.println("Reached MIDDLE position.");
-      currentPosition = MIDDLE;
+
+    stopMotor();  
+    Serial.println("Reached MIDDLE position.");
+    currentPosition = MIDDLE;
   }
 }
 
