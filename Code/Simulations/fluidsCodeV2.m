@@ -2,18 +2,18 @@ clear;
 clc;
 dt = 0.01; %time step
 t = 0:dt:10; %vector of all times
-vi = [10 12 14];
-angle = 10;
+vi =10;
+angle = 17.5;
 anglerad = angle*pi()/180;
 
-p = [0 0.5]; %initial position
+p = [0 0.4]; %initial position
 ac = [0 -9.81]; %constant acceleration
 ad = [0 0]; %drag acceleration
 al = [0 0]; % lift acceleration
 m = 0.175; %mass
 cd0 = 0.08; %drag coefficient
 cl0 = 0.15;
-cdalpha = 2.72;
+cdalpha = 2.72/2;
 clalpha = 1.4;
 rho = 1.2; %density of air
 r = 0.274/2;
