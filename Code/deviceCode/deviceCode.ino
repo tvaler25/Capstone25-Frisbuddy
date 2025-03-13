@@ -52,7 +52,7 @@ long filteredDistanceRight = 0; //filter settings
 long filteredDistanceLeft = 0;
 const int numSamples = 5; // Number of readings to average
 
-int rightDistanceBound = 40; int leftDistanceBound = 35;
+int rightDistanceBound = 37; int leftDistanceBound = 33;
 
 
 
@@ -93,7 +93,7 @@ void setup() {
   //Write default values to pins
   digitalWrite(aimerEnablePin, HIGH);
   moveMotor(true); //move to left
-  delay(1400);
+  delay(1600);
   stopMotor();
   moveMotor(false); //move to right
   delay(600);
@@ -181,7 +181,7 @@ void loop() {
 
   //int aimerAngle = (random(3) - 1) * 30; //random between -30, 0, 30
   
-  int aimerAngle = 0;
+  int aimerAngle = 30;
   
   switch (aimerAngle) {
     case -30:
