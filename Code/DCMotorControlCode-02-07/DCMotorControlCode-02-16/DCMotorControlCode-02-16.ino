@@ -1,13 +1,13 @@
 #include <ezButton.h>
 
 // Define pins for motor control (L298N)
-const int enablePin = 7;  // Enable pin for motor (typically HIGH for enabling)
-const int motorPin1 = 6;  // Motor A pin 1
-const int motorPin2 = 5;  // Motor A pin 2
+const int enablePin = A5;  // Enable pin for motor (typically HIGH for enabling)
+const int motorPin1 = 12;  // Motor A pin 1
+const int motorPin2 = 13;  // Motor A pin 2
 
 // Define pins for limit switches
-const int limitSwitch1Pin = 4;  // Limit switch 1 (left side)
-const int limitSwitch2Pin = 3;  // Limit switch 2 (right side)
+const int limitSwitch1Pin = A0;  // Limit switch 1 (left side)
+const int limitSwitch2Pin = A1;  // Limit switch 2 (right side)
 
 // Initialize the ezButton objects
 ezButton limitSwitch1(limitSwitch1Pin);
@@ -32,6 +32,13 @@ void setup() {
 
   // Initialize motor control
   digitalWrite(enablePin, HIGH);  // Enable the motor
+
+  moveMotor(true); //move to left
+  delay(1400);
+  stopMotor();
+  moveMotor(false); //move to right
+  delay(600);
+  stopMotor();
 
   // Start serial communication
   Serial.begin(9600);
@@ -73,46 +80,55 @@ void moveToPosition(Position targetPosition) {
   if (targetPosition == LEFT) {
     Serial.println("Moving to LEFT...");
     moveMotor(true);  // Move motor to the left
-    delay(750);
-    while (!limitSwitch1.isPressed()) {
-       // Wait until the left limit switch is pressed
-           if (limitSwitch1.isPressed()) {
-      Serial.println(F("The limit switch 1: TOUCHED"));
-      }
+    if(currentPosition == MIDDLE) {
+      delay(700);
     }
+    else if(currentPosition == RIGHT) {
+      delay(1400);
+    }
+    // while (!limitSwitch1.isPressed()) {
+    //    // Wait until the left limit switch is pressed
+    //        if (limitSwitch1.isPressed()) {
+    //   Serial.println(F("The limit switch 1: TOUCHED"));
+    //   }
+    // }
     stopMotor();
     Serial.println("Reached LEFT position.");
     currentPosition = LEFT;
   } else if (targetPosition == RIGHT) {
     Serial.println("Moving to RIGHT...");
     moveMotor(false);  // Move motor to the right
-    delay(750);
-     while (!limitSwitch2.isPressed()) {
-       // Wait until the right limit switch is pressed
-             if (limitSwitch2.isPressed()) {
-      Serial.println(F("The limit switch 2: TOUCHED"));
-      }
-     }
+    if(currentPosition == MIDDLE) {
+      delay(750);
+    }
+    else if(currentPosition == LEFT) {
+      delay(1400);
+    }
+    //  while (!limitSwitch2.isPressed()) {
+    //    // Wait until the right limit switch is pressed
+    //          if (limitSwitch2.isPressed()) {
+    //   Serial.println(F("The limit switch 2: TOUCHED"));
+    //   }
+    // }
     stopMotor();
     Serial.println("Reached RIGHT position.");
     currentPosition = RIGHT;
-  } else if (targetPosition == MIDDLE) {
+  } 
+  else if (targetPosition == MIDDLE) {
     // Move to middle position after interacting with the end switch
-    if (currentPosition == LEFT) {
-      Serial.println("Moving to MIDDLE...");
-      moveMotor(false);  // Move motor to the right from left
-      delay(750);  // Move for 2 seconds to find the middle
-      stopMotor();  // Stop motor after 0.5 seconds
-      Serial.println("Reached MIDDLE position.");
-      currentPosition = MIDDLE;
-    } else if (currentPosition == RIGHT) {
-      Serial.println("Moving to MIDDLE...");
+    Serial.println("Moving to MIDDLE...");
+    if (currentPosition == LEFT) {  
+      moveMotor(false);  // Move motor to the right from left  
+      delay(600);
+    } 
+    else if (currentPosition == RIGHT) {
       moveMotor(true);  // Move motor to the left from right
-      delay(750);  // Move for 2 seconds to find the middle
-      stopMotor();  // Stop motor after 0.5 seconds
-      Serial.println("Reached MIDDLE position.");
-      currentPosition = MIDDLE;
+      delay(650);
     }
+      // Move for 2 seconds to find the middle
+    stopMotor();  // Stop motor after 0.5 seconds
+    Serial.println("Reached MIDDLE position.");
+    currentPosition = MIDDLE;
   }
 }
 

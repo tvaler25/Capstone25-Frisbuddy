@@ -2,7 +2,7 @@
 
 Servo servoGate; Servo servoLinkage;
 
-int servoGatePin = 5; int servoLinkagePin = 11;
+int servoGatePin = 10; int servoLinkagePin = 11;
 
 int val;
 

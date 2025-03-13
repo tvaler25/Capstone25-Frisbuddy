@@ -2,7 +2,9 @@
 
 Servo pusherservo;
 
-const int pusherPin = 1;
+const int pusherPin = 7;
+const int extendedPos = 5;
+const int retractedPos = 90;
 
 void setup() {
   pinMode(pusherPin, OUTPUT);
@@ -10,19 +12,28 @@ void setup() {
 }
 
 void loop() {
-  // Move from 0 to 120 degrees slowly
-  for (int pos = 30; pos <= 150; pos += 1) { // Increase angle in small steps
+  // Move from extendedPos to retractedPos
+
+  for (int pos = extendedPos; pos <= retractedPos; pos += 1) { // Increase angle in small steps
     pusherservo.write(pos);
-    delay(20);  // Small delay for smoother motion
+<<<<<<< Updated upstream
+    delay(40);  // Speed control
+=======
+    delay(1);  // Small delay for smoother motion
+>>>>>>> Stashed changes
   }
   
   delay(1000); // Pause at 140 degrees
 
-  // Move back from 140 to 0 degrees slowly
-  for (int pos = 150; pos >= 30; pos -= 1) { 
+  // Move back from 90 to 0 degrees slowly
+  for (int pos = retractedPos; pos >= extendedPos; pos -= 1) { 
     pusherservo.write(pos);
-    delay(20);
+<<<<<<< Updated upstream
+    delay(40); // Speed control
+=======
+    delay(1);
+>>>>>>> Stashed changes
   }
 
-  delay(1000); // Pause at 0 degrees
+  delay(1000); // Pause after each cycle
 }
