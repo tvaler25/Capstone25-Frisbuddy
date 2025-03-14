@@ -21,8 +21,8 @@ int aimerIn1Pin = 12; int aimerIn2Pin = 13;
 
 //set analog pin numbers
 int aimerLeftSignalPin = A0; int aimerRightSignalPin = A1;
-int buzzerPin = A2;
-int IRReceiverPin = 0;
+int buzzerPin = A3;
+int IRReceiverPin = A4;
 int aimerEnablePin = A5;
 
 //Initialize objects
@@ -35,7 +35,7 @@ ezButton limitSwitch1(aimerLeftSignalPin); ezButton limitSwitch2(aimerRightSigna
 //------------------------------------------------CONSTANTS---------------------------------------
 
 //Motor/H-Bridge constants:
-int motorPower = 165;
+int motorPower = 40;
 
 //Reorienter constants:
 const int ClearValRight = 0; //servo positions
@@ -54,7 +54,7 @@ const int numSamples = 5; // Number of readings to average
 
 int rightDistanceBound = 37; int leftDistanceBound = 33;
 
-
+bool signalReceived = false;
 
 // Pusher constants: 
 int pusherBack = 5; int pusherForward = 90;
@@ -87,7 +87,7 @@ void setup() {
 
   pinMode(aimerLeftSignalPin, INPUT); pinMode(aimerRightSignalPin, INPUT);
   pinMode(buzzerPin, OUTPUT); //buzzer
-  pinMode(IRReceiverPin, INPUT); //IR signal
+  pinMode(IRReceiverPin, INPUT_PULLUP); //IR signal
   pinMode(aimerEnablePin, OUTPUT);
 
   //Write default values to pins
@@ -119,24 +119,34 @@ void loop() {
     //Get filtered distance readings
     filteredDistanceRight = getFilteredDistance(reorienterEchoRightPin);
     filteredDistanceLeft = getFilteredDistance(reorienterEchoLeftPin);
-    delay(200); //check every 100 ms
+
+    signalReceived = false;
+      if(IrReceiver.decode()) {
+        if (IrReceiver.decodedIRData.command == 0x15 && !IrReceiver.decodedIRData.flags) {
+          signalReceived = true;
+        }
+        IrReceiver.resume();
+      }
+
+    delay(200); //check every 200 ms
   }
-  while(filteredDistanceRight > rightDistanceBound && filteredDistanceLeft > leftDistanceBound && !IrReceiver.decode());
-  Serial.println("Disc sensed");
+  while(filteredDistanceRight > rightDistanceBound && filteredDistanceLeft > leftDistanceBound && signalReceived == false);
   
   //reorient right
   if(filteredDistanceRight <= rightDistanceBound) {
-    
+    Serial.println("Disc sensed right");
     delay(200);
     servoLeft.write(ClearValLeft);
     delay(500);
     servoLeft.write(downValLeft);
     delay(1500);
+    
   }
 
   //reorient left
   else if(filteredDistanceLeft <= leftDistanceBound) {
     //Serial.println("Left sensor tirggered ");
+    Serial.println("Disc sensed left");
     delay(200);
     servoRight.write(ClearValRight);
     delay(500);
@@ -148,7 +158,8 @@ void loop() {
   }
 
   //pull from reserve stack
-  else if(IrReceiver.decode()) {
+  else if(signalReceived == true) {
+    Serial.println("IR pressed");
     servoLifter.write(lifterUp); //lift discs up
     delay(1000);
     servoGate.write(gateUp); //open gate
@@ -157,20 +168,20 @@ void loop() {
     delay(1000);
     servoLifter.write(lifterDown);//lower linkage
     delay(1500);
-    IrReceiver.resume();
+    
   }
 
   //delay to let disc settle, then push disc into wheel, then give warning with buzzer
   
   //tone(buzzerPin, 750);   
   for (int pos = pusherBack; pos <= pusherForward; pos += 1) { // Increase angle in small steps
-    servoPusher.write(pos);
+    //servoPusher.write(pos);
     delay(35);  // Small delay for smoother motion
   } 
   noTone(buzzerPin); 
   delay(1000);
   for (int pos = pusherForward; pos >= pusherBack; pos -= 1) { // Decrease angle in small steps
-    servoPusher.write(pos);
+    //servoPusher.write(pos);
     delay(35);
   }
   
@@ -181,7 +192,7 @@ void loop() {
 
   //int aimerAngle = (random(3) - 1) * 30; //random between -30, 0, 30
   
-  int aimerAngle = 30;
+  int aimerAngle = 0;
   
   switch (aimerAngle) {
     case -30:
@@ -196,6 +207,8 @@ void loop() {
   }
   digitalWrite(aimerEnablePin, LOW);
   //Serial.println("Loop complete");
+
+  IrReceiver.resume();
 }
 
 //----------------------------------------ADDITIONAL FUNCTIONS------------------------------------------
