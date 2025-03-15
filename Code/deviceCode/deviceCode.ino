@@ -35,12 +35,12 @@ ezButton limitSwitch1(aimerLeftSignalPin); ezButton limitSwitch2(aimerRightSigna
 //------------------------------------------------CONSTANTS---------------------------------------
 
 //Motor/H-Bridge constants:
-int motorPower = 40;
+int motorPower = 165;
 
 //Reorienter constants:
 const int ClearValRight = 0; //servo positions
-const int downValRight = 73;
-const int PushValLeft = 30;  
+const int downValRight = 70;
+const int PushValLeft = 0;  
 const int downValLeft = 60;
 const int ClearValLeft = 180;
 const int PushValRight = 160;
@@ -149,6 +149,7 @@ void loop() {
     Serial.println("Disc sensed left");
     delay(200);
     servoRight.write(ClearValRight);
+    servoLeft.write(downValLeft+10);
     delay(500);
     servoLeft.write(PushValLeft);
     delay(1000);
@@ -173,15 +174,15 @@ void loop() {
 
   //delay to let disc settle, then push disc into wheel, then give warning with buzzer
   
-  //tone(buzzerPin, 750);   
+  tone(buzzerPin, 750);   
   for (int pos = pusherBack; pos <= pusherForward; pos += 1) { // Increase angle in small steps
-    //servoPusher.write(pos);
+    servoPusher.write(pos);
     delay(35);  // Small delay for smoother motion
   } 
   noTone(buzzerPin); 
   delay(1000);
   for (int pos = pusherForward; pos >= pusherBack; pos -= 1) { // Decrease angle in small steps
-    //servoPusher.write(pos);
+    servoPusher.write(pos);
     delay(35);
   }
   
