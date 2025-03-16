@@ -95,9 +95,9 @@ void setup() {
   moveMotor(true); //move to left
   delay(1600);
   stopMotor();
-  moveMotor(false); //move to right
-  delay(600);
-  stopMotor();
+  //moveMotor(false); //move to right
+  //delay(600);
+  //stopMotor();
   digitalWrite(aimerEnablePin, LOW);
 
 
