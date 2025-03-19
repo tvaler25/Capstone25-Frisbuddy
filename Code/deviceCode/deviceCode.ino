@@ -57,7 +57,7 @@ int rightDistanceBound = 37; int leftDistanceBound = 33;
 bool signalReceived = false;
 
 // Pusher constants: 
-int pusherBack = 5; int pusherForward = 90;
+int pusherBack = 5; int pusherForward = 82;
 
 //Reserve stack constants:
 int lifterDown = 10; int lifterUp = 70;
@@ -95,10 +95,11 @@ void setup() {
   moveMotor(true); //move to left
   delay(1600);
   stopMotor();
-  //moveMotor(false); //move to right
-  //delay(600);
+  moveMotor(false); //move to right
+  delay(600);
+  //delay(1500);
   //stopMotor();
-  digitalWrite(aimerEnablePin, LOW);
+  //digitalWrite(aimerEnablePin, LOW);
 
 
   digitalWrite(motorDirPin, HIGH); analogWrite(motorPWMPin, motorPower);
