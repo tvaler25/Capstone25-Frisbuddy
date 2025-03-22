@@ -158,7 +158,7 @@ void loop() {
 
     delay(200); //check every 200 ms
   }
-  while(filteredDistanceRight > rightDistanceBound && filteredDistanceLeft > leftDistanceBound && dispense == true);
+  while(filteredDistanceRight > rightDistanceBound && filteredDistanceLeft > leftDistanceBound && dispense == false);
   
   //reorient right
   if(filteredDistanceRight <= rightDistanceBound) {
