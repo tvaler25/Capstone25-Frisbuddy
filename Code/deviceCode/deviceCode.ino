@@ -56,6 +56,8 @@ int rightDistanceBound = 37; int leftDistanceBound = 33;
 
 bool signalReceived = false;
 
+bool dispense = false;//variable for keyboard input to activate reserve 
+
 // Pusher constants: 
 int pusherBack = 5; int pusherForward = 82;
 
@@ -108,6 +110,30 @@ void setup() {
   servoGate.write(gateDown); servoLifter.write(lifterDown); //reserve stack
 
   IrReceiver.begin(IRReceiverPin, ENABLE_LED_FEEDBACK);
+  
+  Serial.println("Enter L, R, or C to set aimer position:");
+  
+  bool positionSet = false;
+  while (!positionSet) {
+    if (Serial.available() > 0) {
+      char input = Serial.read();
+      if (input == 'L' || input == 'R' || input == 'C') {
+        switch (input) {
+          case 'L':
+            moveMotor(true); //move to left
+            delay(1600);
+            break;
+          case 'R':
+            moveMotor(false); //move to right
+            delay(1000);
+            break;
+          case 'C':
+            break;
+        }
+        positionSet = true;
+      }
+    }
+  }
 
 }
 
@@ -121,17 +147,18 @@ void loop() {
     filteredDistanceRight = getFilteredDistance(reorienterEchoRightPin);
     filteredDistanceLeft = getFilteredDistance(reorienterEchoLeftPin);
 
-    signalReceived = false;
-      if(IrReceiver.decode()) {
-        if (IrReceiver.decodedIRData.command == 0x15 && !IrReceiver.decodedIRData.flags) {
-          signalReceived = true;
-        }
-        IrReceiver.resume();
+     
+    if (Serial.available() > 0) {
+      char input = Serial.read();
+      if (input == 'D') {
+        dispense=true;
+        break;  // Exit the loop if 'd' is pressed
       }
+    }
 
     delay(200); //check every 200 ms
   }
-  while(filteredDistanceRight > rightDistanceBound && filteredDistanceLeft > leftDistanceBound && signalReceived == false);
+  while(filteredDistanceRight > rightDistanceBound && filteredDistanceLeft > leftDistanceBound && dispense == true);
   
   //reorient right
   if(filteredDistanceRight <= rightDistanceBound) {
@@ -160,7 +187,7 @@ void loop() {
   }
 
   //pull from reserve stack
-  else if(signalReceived == true) {
+  else if(dispense == true) {
     Serial.println("IR pressed");
     servoLifter.write(lifterUp); //lift discs up
     delay(1000);
