@@ -12,7 +12,7 @@ void setup() {
   servoGate.attach(servoGatePin);
   servoLinkage.attach(servoLinkagePin);
   servoGate.write(70);
-  servoLinkage.write(10);
+  servoLinkage.write(30);
   
   Serial.begin(9600);
 }
@@ -31,20 +31,20 @@ void loop() {
 
     if (val == '.') {
     // for (int angle = 70; angle >= 0; angle -= 1) {  // rotate from 120 degrees to 0 degrees, one by one degree
-      servoLinkage.write(10);                        // control servo to go to position in variable 'angle'
+      servoLinkage.write(30);                        // control servo to go to position in variable 'angle'
       delay(10);                               // waits 10ms for the servo to reach the position
     }
 
     if (val == 'g') {
     // for (int angle = 0; angle <= 70; angle += 1) {  // rotate slowly from 0 degrees to 120 degrees, one by one degree
-      servoGate.write(70);  // control servo to go to position in variable 'angle'
+      servoGate.write(90);  // control servo to go to position in variable 'angle'
       delay(10);         // waits 10ms for the servo to reach the position
       
     }
 
     if (val == 'b') {
     // for (int angle = 70; angle >= 0; angle -= 1) {  // rotate from 120 degrees to 0 degrees, one by one degree
-      servoGate.write(10);                        // control servo to go to position in variable 'angle'
+      servoGate.write(30);                        // control servo to go to position in variable 'angle'
       delay(10);                               // waits 10ms for the servo to reach the position
     }
 

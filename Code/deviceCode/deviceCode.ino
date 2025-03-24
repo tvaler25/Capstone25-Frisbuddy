@@ -62,8 +62,8 @@ bool dispense = false;//variable for keyboard input to activate reserve
 int pusherBack = 5; int pusherForward = 82;
 
 //Reserve stack constants:
-int lifterDown = 10; int lifterUp = 70;
-int gateDown = 70; int gateUp = 10;
+int lifterDown = 30; int lifterUp = 70;
+int gateDown = 90; int gateUp = 30;
 
 //Aimer constants:
 enum Position {LEFT, MIDDLE, RIGHT};
@@ -101,7 +101,7 @@ void setup() {
   delay(600);
   //delay(1500);
   //stopMotor();
-  //digitalWrite(aimerEnablePin, LOW);
+  digitalWrite(aimerEnablePin, LOW);
 
 
   digitalWrite(motorDirPin, HIGH); analogWrite(motorPWMPin, motorPower);
@@ -119,15 +119,18 @@ void setup() {
       char input = Serial.read();
       if (input == 'L' || input == 'R' || input == 'C') {
         switch (input) {
-          case 'L':
-            moveMotor(true); //move to left
-            delay(1600);
-            break;
           case 'R':
-            moveMotor(false); //move to right
-            delay(1000);
+           digitalWrite(aimerEnablePin, HIGH);
+            moveToPosition(RIGHT);
+            digitalWrite(aimerEnablePin, LOW);
+            break;
+          case 'L':
+            digitalWrite(aimerEnablePin, HIGH);
+            moveToPosition(LEFT);
+            digitalWrite(aimerEnablePin, LOW);
             break;
           case 'C':
+            moveToPosition(MIDDLE);
             break;
         }
         positionSet = true;
@@ -141,6 +144,8 @@ void setup() {
 
 void loop() {
   
+  dispense = false;
+
   //wait for signal from either reorienter or remote
   do {
     //Get filtered distance readings
@@ -217,10 +222,10 @@ void loop() {
 
   //aim
   delay(2000); //wait for disc to pass the aimer
-  digitalWrite(aimerEnablePin, HIGH);
+  //digitalWrite(aimerEnablePin, HIGH);
 
   //int aimerAngle = (random(3) - 1) * 30; //random between -30, 0, 30
-  
+  /*
   int aimerAngle = 0;
   
   switch (aimerAngle) {
@@ -234,7 +239,8 @@ void loop() {
       moveToPosition(RIGHT);
       break;
   }
-  digitalWrite(aimerEnablePin, LOW);
+  
+  */
   //Serial.println("Loop complete");
 
   IrReceiver.resume();
